@@ -287,12 +287,15 @@ app.get("/readyz", (_req, res) => {
 // Keep the authenticated product catalog out of public SEO pages and sitemap.
 const SEO_PUBLIC_PATHS = ["/welcome", "/faq"];
 
-const SEO_KEYWORDS = "RentDue, virtual machine rentals, daily returns, referral rewards, mobile money withdrawals, USDT withdrawals";
-const SEO_DESCRIPTION = "Rent virtual machines with RentDue and track daily returns. Complete tasks, earn referral rewards, and withdraw eligible earnings via mobile money or USDT.";
+const SEO_KEYWORDS = "PrimeFlow, trading bots, automated trading simulation, daily PnL, virtual trading, affiliate rewards, mobile money cash out, USDT";
+const SEO_DESCRIPTION = "Deploy capital into automated trading bots with PrimeFlow. Track daily PnL and cash out via mobile money or USDT. Virtual simulation — simulated for practice and entertainment.";
 const SEO_SHARE_IMAGE = "/seo-share-image";
+const SEO_BRAND_FALLBACK = "PrimeFlow";
+const SEO_TAGLINE = "Deploy. Earn. Compound.";
+const SEO_DISCLOSURE = "PrimeFlow is a virtual simulation. Rent bots, deploy capital, and track returns — simulated for practice and entertainment.";
 
 function seoTitle(brand: string): string {
-  return `${brand} | Virtual machine rentals and daily returns`;
+  return `${brand} | ${SEO_TAGLINE}`;
 }
 
 function getPublicBaseUrl(req: express.Request): string {
@@ -318,14 +321,14 @@ function formatSeoUgx(_value: unknown): string {
 async function getSeoData(): Promise<{ brand: string; description: string; items: any[]; config: any }> {
   try {
     const config = await getSiteConfig().catch(() => ({} as any));
-    const brand = String((config as any)?.brandName || "").trim() || "RENTDUE";
+    const brand = String((config as any)?.brandName || "").trim() || SEO_BRAND_FALLBACK;
     // Placeholder format: fixed corporate description until final copy lands.
     // Products stay hidden behind auth — no catalog fetch here by design.
     const description = String(config?.seoDescription || "").trim() || SEO_DESCRIPTION;
     return { brand, description, items: [], config: config || {} };
   } catch {
     return {
-      brand: "RENTDUE",
+      brand: SEO_BRAND_FALLBACK,
       description: SEO_DESCRIPTION,
       items: [],
       config: {},
@@ -374,17 +377,18 @@ ${jsonLdTag}
 <body>
 <header><div class="wrap"><nav>${nav("/welcome", "About")}${nav("/faq", "FAQ")}<a href="/">Open app</a></nav></div></header>
 <main class="wrap">${opts.body}</main>
-<footer><div class="wrap"><p class="muted" style="color:#94a3b8">${escapeSeoHtml(opts.brand)}: ${escapeSeoHtml(SEO_DESCRIPTION)}</p><nav><a href="/welcome">About</a><a href="/faq">FAQ</a><a href="/">Open app</a></nav></div></footer>
+<footer><div class="wrap"><p class="muted" style="color:#94a3b8">${escapeSeoHtml(opts.brand)}: ${escapeSeoHtml(SEO_DISCLOSURE)}</p><nav><a href="/welcome">About</a><a href="/faq">FAQ</a><a href="/">Open app</a></nav></div></footer>
 </body>
 </html>`;
 }
 
 const SEO_FAQS: Array<{ q: string; a: string }> = [
-  { q: "How does Rentdue work?", a: "Deposit funds into your rechargeable balance, use that balance to rent a product, and each product earns daily income into your withdrawable balance for the length of its cycle." },
-  { q: "How do withdrawals work?", a: "Withdrawals come from the withdrawable balance only, require at least one product, and are paid to MTN, Airtel or USDT. Fees and minimums are shown in the app before you confirm." },
-  { q: "How do referrals earn?", a: "Share your invite link. You earn Level 1–4 commissions when invitees activate products, paid while the invitee keeps an active product." },
-  { q: "What is the daily check-in?", a: "Open the app every day to claim a check-in bonus into your withdrawable balance. Longer streaks unlock bigger rewards." },
+  { q: "How does PrimeFlow work?", a: "Add funds to your Capital, deploy capital into a bot, and each bot earns daily PnL into your Cash for the length of its cycle." },
+  { q: "How do cash outs work?", a: "Cash outs come from your Cash balance only, require at least one open position, and are paid to MTN, Airtel or USDT. Fees and minimums are shown in the app before you confirm." },
+  { q: "How do affiliates earn?", a: "Share your affiliate link. You earn Level 1–4 commissions when invitees deploy capital, paid while the invitee keeps an open position." },
+  { q: "What is the daily check-in?", a: "Open the app every day to claim a check-in bonus into your Cash balance. Longer streaks unlock bigger rewards." },
   { q: "Do I need the app installed?", a: "No — the app works in the browser. You can also install it from your phone browser for faster access." },
+  { q: "Is PrimeFlow real trading?", a: "No. PrimeFlow is a virtual simulation. Rent bots, deploy capital, and track returns — simulated for practice and entertainment." },
 ];
 
 // Private surfaces must never be indexed.
@@ -454,25 +458,30 @@ app.get("/seo-share-image", async (req, res) => {
   }
 });
 
+function renderWelcomeBody(brand: string, description: string, signupBonus: number): string {
+  return `
+<h1>${escapeSeoHtml(brand)} — ${escapeSeoHtml(SEO_TAGLINE)}</h1>
+<p>${escapeSeoHtml(description)}</p>
+<p class="muted">${escapeSeoHtml(SEO_DISCLOSURE)}</p>
+<ul class="tick">
+  <li>Check in daily to collect your login bonus.</li>
+  <li>Complete missions to unlock new challenges and higher rewards.</li>
+  <li>Earn affiliate commissions on eligible activity across up to four levels.</li>
+  <li>Cash out eligible returns through supported mobile money or USDT.</li>
+  <li>Collect shareable badges when a position closes.</li>
+</ul>
+${signupBonus > 0 ? `<p><strong>Sign up to receive a UGX ${escapeSeoHtml(signupBonus.toLocaleString("en-UG"))} welcome bonus. Offer terms apply.</strong></p>` : ""}
+<p><a class="cta" href="/">Open the app</a></p>
+<h2>Bots, positions, and rewards</h2>
+<p>Manage positions, daily PnL, affiliates, missions, and cash outs from one account.</p>
+<p><a href="/faq">Read frequently asked questions</a></p>`;
+}
+
 app.get("/welcome", async (req, res) => {
   const base = getPublicBaseUrl(req);
   const { brand, description, config } = await getSeoData();
   const signupBonus = Number(config?.registrationBonus ?? 0);
-  const body = `
-<h1>${escapeSeoHtml(brand)} virtual machine rentals</h1>
-<p>${escapeSeoHtml(description)}</p>
-<ul class="tick">
-  <li>Check in daily to collect your login bonus.</li>
-  <li>Complete tasks to unlock new challenges and higher rewards.</li>
-  <li>Earn referral commissions on eligible activity across up to four levels.</li>
-  <li>Withdraw eligible returns through supported mobile money or USDT.</li>
-  <li>Collect shareable artwork when a rental cycle is complete.</li>
-</ul>
-${signupBonus > 0 ? `<p><strong>Sign up to receive a UGX ${escapeSeoHtml(signupBonus.toLocaleString("en-UG"))} welcome bonus. Offer terms apply.</strong></p>` : ""}
-<p><a class="cta" href="/">Open the app</a></p>
-<h2>Virtual rentals and rewards</h2>
-<p>Manage rentals, daily earnings, referrals, milestones, and withdrawals from one account.</p>
-<p><a href="/faq">Read frequently asked questions</a></p>`;
+  const body = renderWelcomeBody(brand, description, signupBonus);
   res.send(seoShell({
     brand,
     title: seoTitle(brand),
@@ -506,8 +515,8 @@ app.get("/faq", async (req, res) => {
     `<p><a class="cta" href="/">Open the app</a></p>`;
   res.send(seoShell({
     brand,
-    title: `${brand} FAQs | Rentals, returns, and rewards`,
-    description: `Learn how RentDue rentals, daily returns, check-ins, referrals, withdrawals, and app access work.`,
+    title: `${brand} FAQs | Bots, positions, and rewards`,
+    description: `Learn how PrimeFlow bots, daily PnL, check-ins, affiliates, cash outs, and app access work.`,
     image: `${base}${SEO_SHARE_IMAGE}`,
     canonical: `${base}/faq`,
     activePath: "/faq",
@@ -2335,8 +2344,8 @@ app.get("/api/manifest.json", async (req, res) => {
     const config = await getSiteConfig();
     const manifest = {
       id: "/",
-      name: config.brandName || "RentDue Store",
-      short_name: config.manifestShortName || config.brandName || "RentDue Store",
+      name: config.brandName || SEO_BRAND_FALLBACK,
+      short_name: config.manifestShortName || config.brandName || SEO_BRAND_FALLBACK,
       description: config.manifestDescription || SEO_DESCRIPTION,
       start_url: "/",
       display: "standalone",
@@ -2384,8 +2393,8 @@ app.get("/api/manifest.json", async (req, res) => {
     logError("[PWA] Manifest configuration lookup failed:", err);
     res.json({
       id: "/",
-      name: "RentDue Store",
-      short_name: "RentDue Store",
+      name: SEO_BRAND_FALLBACK,
+      short_name: SEO_BRAND_FALLBACK,
       description: SEO_DESCRIPTION,
       start_url: "/",
       display: "standalone",
@@ -2887,7 +2896,7 @@ async function startServer() {
         // Public title, description, and configured share image are injected for link preview crawlers.
         try {
           const config = await getSiteConfig().catch(() => ({} as any));
-          const brand = String((config as any)?.brandName || "").trim() || "RentDue Store";
+          const brand = String((config as any)?.brandName || "").trim() || SEO_BRAND_FALLBACK;
           const description = String((config as any)?.seoDescription || "").trim() || SEO_DESCRIPTION;
           const base = getPublicBaseUrl(req);
           const escBrand = escapeSeoHtml(brand);
