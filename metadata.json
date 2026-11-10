@@ -1,6 +1,6 @@
 {
-  "name": "Rentdue platform",
-  "description": "High-performance, mobile-first cloud platform offering high-yield processing nodes . Users create runs, harvest daily dividends, and earn referral commissions with secure cash payouts.",
+  "name": "PrimeFlow",
+  "description": "PrimeFlow is a virtual trading simulation. Deploy capital into automated trading bots, track daily PnL, complete missions, and cash out via mobile money or USDT — simulated for practice and entertainment.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

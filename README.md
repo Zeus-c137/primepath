@@ -1,6 +1,6 @@
-# Rentdue
+# PrimeFlow
 
-Mobile-first referral-mining platform. Users recharge their account, activate product runs, earn daily yields, collect referral commissions, complete milestones and check-in streaks, then withdraw via mobile money or USDT. Includes a full admin dashboard for users, transactions, catalog, gift codes, announcements, milestones, and site configuration.
+Mobile-first virtual trading simulation. Users add funds, deploy capital into automated trading bots, track daily PnL, earn affiliate commissions, complete missions and check-in streaks, then cash out via mobile money or USDT. Includes a full admin dashboard for users, transactions, bots, gift codes, announcements, missions, and site configuration.
 
 Built on Vite + React 19 + Express + Drizzle/MySQL + Cloudinary.
 
